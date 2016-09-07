@@ -1,5 +1,5 @@
 require 'mime-types'
-require 'getoptlong'
+require 'optparse'
 require 'scrawls/config/task'
 require 'scrawls/config/tasklist'
 
@@ -68,17 +68,8 @@ class SimpleRubyWebServer
     def parse_command_line
       call_list = TaskList.new
 
-      opts = GetoptLong.new(
-        [ '--help',        '-h', GetoptLong::NO_ARGUMENT],
-        [ '--ioengine',    '-i', GetoptLong::REQUIRED_ARGUMENT],
-        [ '--httpengine',  '-e', GetoptLong::REQUIRED_ARGUMENT],
-        [ '--port',        '-p', GetoptLong::REQUIRED_ARGUMENT],
-        [ '--docroot',     '-d', GetoptLong::REQUIRED_ARGUMENT]
-      )
-
-      opts.each do |opt, arg|
-        case opt
-        when '--help'
+      options = OptionParser.new do |opts|
+        opts.on( '-h', '--help' ) do
           exe = File.basename( $PROGRAM_NAME )
           @meta_configuration[:helptext] << <<-EHELP
 #{exe} [OPTIONS]
@@ -106,24 +97,47 @@ class SimpleRubyWebServer
 
 EHELP
           call_list << Task.new(9999) { puts @meta_configuration[:helptext]; exit 0 }
-        when '--docroot'
-          call_list << Task.new(9000) { @configuration[:docroot] = arg }
-        when '--ioengine'
+        end
+
+        opts.on( '-d', '--docroot DOCROOT' ) do |docroot|
+          call_list << Task.new(9000) { @configuration[:docroot] = docroot }
+        end
+
+        opts.on( '-i', '--ioengine ENGINE' ) do |ioengine|
           call_list << Task.new(0) do
-            libname = "scrawls/ioengine/#{arg}"
+            libname = "scrawls/ioengine/#{ioengine}"
             setup_engine(:ioengine, libname)
           end
-        when '--httpengine'
+        end
+
+        opts.on( '-e', '--httpengine ENGINE' ) do |httpengine|
           call_list << Task.new(0) do
-            libname = "scrawls/httpengine/#{arg}"
+            libname = "scrawls/httpengine/#{httpengine}"
             setup_engine(:httpengine, libname)
           end
-        when '--port'
-          call_list << Task.new(9000) { @port = arg.to_i != 0 ? arg.to_i : @port }
-        when '--bind'
-          call_list << Task.new(9000) { @host = arg }
+        end
+
+        opts.on( '-p', '--port PORT') do |port|
+          call_list << Task.new(9000) { n = Integer( port.to_i ); @configuration[:port] = n > 0 ? n : @configuration[:port] }
+        end
+
+        opts.on( '-b', '--bind HOST') do |host|
+          call_list << Task.new(9000) { @configuration[:host] = host }
         end
       end
+
+      leftover_argv = []
+
+      begin
+        options.parse!(ARGV)
+      rescue OptionParser::InvalidOption => e
+        e.recover ARGV
+        leftover_argv << ARGV.shift
+        leftover_argv << ARGV.shift if ARGV.any? && ( ARGV.first[0..0] != '-' )
+        retry
+      end
+
+      ARGV.replace( leftover_argv ) if leftover_argv.any?
 
       call_list
     end
@@ -132,7 +146,7 @@ EHELP
       require libname
       klass = classname( libname.split(/\//).collect {|s| s.capitalize} )
       @configuration[key] = klass
-      @configuration[key].parse_command_line if @configuration[key].respond_to? :parse_command_line
+      @configuration[key].parse_command_line(@configuration, @meta_configuration) if @configuration[key].respond_to? :parse_command_line
     end
 
   end
