@@ -1,9 +1,9 @@
 require 'scrawls/core'
 
 module Scrawls
-  def run
+  def self.run
     config = SimpleRubyWebServer::Config.new
-    config.parse_cmdline
+    config.parse
     server = SimpleRubyWebServer.new config
     server.run
   end

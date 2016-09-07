@@ -1,3 +1,5 @@
+require 'mime-types'
+require 'getoptlong'
 require 'scrawls/config/task'
 require 'scrawls/config/tasklist'
 
@@ -29,12 +31,13 @@ class SimpleRubyWebServer
     end
 
     def classname(klass)
-      klass.split(/::/).inject(::Object) {|o,n| o.const_get n}
+      parts = Array === klass ? klass : klass.split(/::/)
+      parts.inject(::Object) {|o,n| o.const_get n}
     end
 
     def parse(parse_cl = true, additional_config = {}, additional_meta_config = {}, additional_tasks = nil)
       @configuration.merge! additional_config
-      @meta_configuration.merge! additional_meta_configuration
+      @meta_configuration.merge! additional_meta_config
       
       tasklist = parse_command_line if parse_cl
 
@@ -68,7 +71,7 @@ class SimpleRubyWebServer
       opts = GetoptLong.new(
         [ '--help',        '-h', GetoptLong::NO_ARGUMENT],
         [ '--ioengine',    '-i', GetoptLong::REQUIRED_ARGUMENT],
-        [ '--httpengine',  '-h', GetoptLong::REQUIRED_ARGUMENT],
+        [ '--httpengine',  '-e', GetoptLong::REQUIRED_ARGUMENT],
         [ '--port',        '-p', GetoptLong::REQUIRED_ARGUMENT],
         [ '--docroot',     '-d', GetoptLong::REQUIRED_ARGUMENT]
       )
@@ -107,12 +110,12 @@ EHELP
           call_list << Task.new(9000) { @configuration[:docroot] = arg }
         when '--ioengine'
           call_list << Task.new(0) do
-            libname = "scrawls-ioengine-#{arg}"
+            libname = "scrawls/ioengine/#{arg}"
             setup_engine(:ioengine, libname)
           end
         when '--httpengine'
           call_list << Task.new(0) do
-            libname = "scrawls-httpengine-#{arg}"
+            libname = "scrawls/httpengine/#{arg}"
             setup_engine(:httpengine, libname)
           end
         when '--port'
@@ -121,11 +124,13 @@ EHELP
           call_list << Task.new(9000) { @host = arg }
         end
       end
+
+      call_list
     end
 
     def setup_engine(key, libname)
-      klass = classname( libname.split(/-/).collect {|s| s.capitalize} )
       require libname
+      klass = classname( libname.split(/\//).collect {|s| s.capitalize} )
       @configuration[key] = klass
       @configuration[key].parse_command_line if @configuration[key].respond_to? :parse_command_line
     end

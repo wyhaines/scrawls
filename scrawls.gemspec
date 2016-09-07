@@ -9,18 +9,10 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Kirk Haines"]
   spec.email         = ["wyhaines@gmail.com"]
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = %q{Scrawls is a simple ruby web server with a pluggable architecture.}
+  spec.description   = %q{Scrawls is a web server, written in Ruby, that lets one choose what sort of concurreny engine to use, as well as the HTTP parsing engine to use. }
+  spec.homepage      = "http://github.com/wyhaines/scrawls"
   spec.license       = "MIT"
-
-  # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
-  # to allow pushing to a single host or delete this section to allow pushing to any host.
-  if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
-  else
-    raise "RubyGems 2.0 or newer is required to protect against public gem pushes."
-  end
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = "exe"
@@ -30,4 +22,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.12"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "minitest", "~> 5.0"
+  spec.add_runtime_dependency "mime-types", "~> 3.0"
 end

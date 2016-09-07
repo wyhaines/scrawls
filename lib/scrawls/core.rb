@@ -1,5 +1,6 @@
 require 'scrawls/version'
 require 'scrawls/config'
+require 'time'
 
 class SimpleRubyWebServer
 
@@ -24,7 +25,7 @@ class SimpleRubyWebServer
     path = File.join( @config[:docroot], request['PATH_INFO'] )
     if FileTest.directory? path
       deliver_directory path, connection
-    elsif FileTest.exist?( path ) and FileTest.file?( path ) and File.expand_path( path ).index( DOCROOT ) == 0
+    elsif FileTest.exist?( path ) and FileTest.file?( path ) and File.expand_path( path ).index( File.expand_path( @config[:docroot] ) ) == 0
       connection.write CANNED_OK +
           "Content-Type: #{MIME::Types.type_for( path )}\r\n" +
           "Content-Length: #{File.size( path )}\r\n" +
@@ -34,7 +35,8 @@ class SimpleRubyWebServer
     else
       deliver_404 connection
     end
-  rescue Exception
+  rescue Exception => e
+    puts "ERROR\n\n#{e}\n#{e.backtrace.join("\n")}\n"
     deliver_500 connection
   end
 
