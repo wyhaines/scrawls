@@ -1,5 +1,6 @@
 require 'scrawls/version'
 require 'scrawls/config'
+require 'scrawls/rack_handler'
 require 'time'
 
 class SimpleRubyWebServer
@@ -13,11 +14,21 @@ class SimpleRubyWebServer
   end
 
   def run(&block)
+    @rack_app = SimpleRubyWebServer.rack_app if @config[:racked]
+
     @http_engine = @config[:httpengine]
 
     @io_engine = @config[:ioengine].new self
 
     @io_engine.run @config
+  end
+
+  def has_app?
+    @rack_app
+  end
+
+  def run_app request, ioengine
+    ::Rack::Handler::Scrawls.serve @rack_app, request, ioengine
   end
 
   def process request, ioengine
@@ -32,6 +43,8 @@ class SimpleRubyWebServer
           "Last-Modified: #{File.mtime( path )}\r\n" +
           final_headers +
           File.read( path )
+    elsif has_app?
+      run_app request, ioengine
     else
       deliver_404 ioengine
     end

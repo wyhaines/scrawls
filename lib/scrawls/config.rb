@@ -9,7 +9,7 @@ class SimpleRubyWebServer
     def initialize
       @configuration = {}
       @configuration[:docroot] = '.'
-      @configuration[:ioengine] = 'nio'
+      @configuration[:ioengine] = 'single'
       @configuration[:httpengine] = 'httprecognizer'
       @configuration[:port] = 8080
       @configuration[:host] = '127.0.0.1'
@@ -82,6 +82,9 @@ class SimpleRubyWebServer
 -d DIR, --docroot DIR:
   Provide a specific directory for the docroot for this server.
 
+-a APP, --app APP:
+  Ruby file containing a rack app to use.
+
 -i IO_ENGINE, --ioengine IO_ENGINE:
   Tell the webserver which concurrency engine to use. 
 
@@ -101,6 +104,13 @@ EHELP
 
         opts.on( '-d', '--docroot DOCROOT' ) do |docroot|
           call_list << Task.new(9000) { @configuration[:docroot] = docroot }
+        end
+
+        opts.on( '-a', '--app APP' ) do |app|
+          call_list << Task.new(9000) do
+            require "#{app}"
+            @configuration[:racked] = true
+          end
         end
 
         opts.on( '-i', '--ioengine ENGINE' ) do |ioengine|
