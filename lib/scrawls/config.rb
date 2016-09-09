@@ -87,9 +87,13 @@ class SimpleRubyWebServer
 
 -i IO_ENGINE, --ioengine IO_ENGINE:
   Tell the webserver which concurrency engine to use. 
+  Installed IO Engines:
+#{`gem search -l scrawls-ioengine`.split(/\n/).select {|e| e =~ /scrawls-ioengine-/}.collect {|e| e =~ /scrawls-ioengine-(\w+)/; "    #{$1}"}.join("\n")}
 
 -h HTTP_ENGINE, --httpengine HTTP_ENGINE:
   Tell the webserver which concurrency engine to use. 
+  Installed HTTP Engines:
+#{`gem search -l scrawls-httpengine`.split(/\n/).select {|e| e =~ /scrawls-httpengine-/}.collect {|e| e =~ /scrawls-httpengine-(\w+)/; "    #{$1}"}.join("\n")}
 
 -p PORT, --port PORT:
   The port for the web server to listen on. If this flag is not used, the web
@@ -132,7 +136,7 @@ EHELP
         end
 
         opts.on( '-b', '--bind HOST') do |host|
-          call_list << Task.new(9000) { @configuration[:host] = host }
+          call_list << Task.new(9000) { puts "HOST: #{host.inspect}"; @configuration[:host] = host }
         end
       end
 
