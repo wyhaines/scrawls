@@ -136,7 +136,7 @@ EHELP
         end
 
         opts.on( '-b', '--bind HOST') do |host|
-          call_list << Task.new(9000) { puts "HOST: #{host.inspect}"; @configuration[:host] = host }
+          call_list << Task.new(9000) { @configuration[:host] = host }
         end
       end
 

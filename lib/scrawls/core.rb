@@ -3,6 +3,9 @@ require 'scrawls/config'
 require 'scrawls/rack_handler'
 require 'time'
 
+Signal.trap("INT") { exit } # This should defer to the IO Engine for proper cleanup
+Signal.trap("TERM") { exit } # This should defer to the IO Engine for proper cleanup
+
 class SimpleRubyWebServer
 
   CANNED_OK = "HTTP/1.0 200 OK\r\n"
