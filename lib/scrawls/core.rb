@@ -49,7 +49,7 @@ class SimpleRubyWebServer
     elsif has_app?
       run_app request, ioengine
     else
-      deliver_404 ioengine
+      deliver_404 request['PATH_INFO'], ioengine
     end
   rescue Exception => e
     puts "ERROR\n\n#{e}\n#{e.backtrace.join("\n")}\n"

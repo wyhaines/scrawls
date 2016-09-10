@@ -118,17 +118,19 @@ EHELP
         end
 
         opts.on( '-i', '--ioengine ENGINE' ) do |ioengine|
-          call_list << Task.new(0) do
-            libname = "scrawls/ioengine/#{ioengine}"
-            setup_engine(:ioengine, libname)
-          end
+          @configuration[:ioengine] = ioengine
+        end
+        call_list << Task.new(0) do
+          libname = "scrawls/ioengine/#{@configuration[:ioengine]}"
+          setup_engine(:ioengine, libname)
         end
 
         opts.on( '-e', '--httpengine ENGINE' ) do |httpengine|
-          call_list << Task.new(0) do
-            libname = "scrawls/httpengine/#{httpengine}"
-            setup_engine(:httpengine, libname)
-          end
+          @configuration[:httpengine] = httpengine
+        end
+        call_list << Task.new(0) do
+          libname = "scrawls/httpengine/#{@configuration[:httpengine]}"
+          setup_engine(:httpengine, libname)
         end
 
         opts.on( '-p', '--port PORT') do |port|
