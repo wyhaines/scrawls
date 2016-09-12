@@ -22,6 +22,13 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.12"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "minitest", "~> 5.0"
+
   spec.add_runtime_dependency "mime-types", "~> 3.0"
   spec.add_runtime_dependency "rack", "~> 2.0"
+
+  spec.add_runtime_dependency "scrawls-httpengine-httprecognizer", "~> 0.1"
+  spec.add_runtime_dependency "scrawls-ioengine-single", "~> 0.1"
+  spec.add_runtime_dependency "scrawls-ioengine-multiprocess", "~> 0.1"
+  spec.add_runtime_dependency "scrawls-ioengine-multithread", "~> 0.1"
+  spec.add_runtime_dependency "scrawls-ioengine-simplereactor", "~> 0.1"
 end
